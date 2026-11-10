@@ -1,6 +1,7 @@
 # 技能目录
 
-公开集合包含 651 个默认技能和 128 个可选版本。私人账号及身份配置不在本集合中。
+公开集合包含 669 个默认技能和 128 个可选版本。
+私人账号及身份配置不在本集合中。Nature Downloader 按用户要求不参与本次更新和新增导出。
 
 | 名称 | 默认安装 | 环境与依赖提示 |
 | --- | --- | --- |
@@ -348,6 +349,24 @@
 | [mqtt-development](skills/mqtt-development/SKILL.md) | 是 | 按技能正文检查依赖 |
 | [multi-agent-patterns](skills/multi-agent-patterns/SKILL.md) | 是 | python |
 | [mysql-best-practices](skills/mysql-best-practices/SKILL.md) | 是 | 按技能正文检查依赖 |
+| [nature-academic-search](skills/nature-academic-search/SKILL.md) | 是 | mcp-tools, python, bash |
+| [nature-citation](skills/nature-citation/SKILL.md) | 是 | python |
+| [nature-data](skills/nature-data/SKILL.md) | 是 | 按技能正文检查依赖 |
+| [nature-experiment-log](skills/nature-experiment-log/SKILL.md) | 是 | 按技能正文检查依赖 |
+| [nature-figure](skills/nature-figure/SKILL.md) | 是 | python |
+| [nature-image2ppt](skills/nature-image2ppt/SKILL.md) | 是 | python |
+| [nature-literature-pipeline](skills/nature-literature-pipeline/SKILL.md) | 是 | 按技能正文检查依赖 |
+| [nature-paper-card](skills/nature-paper-card/SKILL.md) | 是 | python |
+| [nature-paper-to-patent](skills/nature-paper-to-patent/SKILL.md) | 是 | python |
+| [nature-paper2ppt](skills/nature-paper2ppt/SKILL.md) | 是 | python |
+| [nature-polishing](skills/nature-polishing/SKILL.md) | 是 | 按技能正文检查依赖 |
+| [nature-reader](skills/nature-reader/SKILL.md) | 是 | python |
+| [nature-ref-verifier](skills/nature-ref-verifier/SKILL.md) | 是 | 按技能正文检查依赖 |
+| [nature-response](skills/nature-response/SKILL.md) | 是 | python |
+| [nature-reviewer](skills/nature-reviewer/SKILL.md) | 是 | python |
+| [nature-shared](skills/nature-shared/SKILL.md) | 是 | python |
+| [nature-statistics](skills/nature-statistics/SKILL.md) | 是 | 按技能正文检查依赖 |
+| [nature-writing](skills/nature-writing/SKILL.md) | 是 | 按技能正文检查依赖 |
 | [nestjs-clean-typescript](skills/nestjs-clean-typescript/SKILL.md) | 是 | 按技能正文检查依赖 |
 | [netlify-development](skills/netlify-development/SKILL.md) | 是 | 按技能正文检查依赖 |
 | [networkx](skills/networkx/SKILL.md) | 是 | 按技能正文检查依赖 |

@@ -5,16 +5,16 @@
 
 | 静态依赖标签 | 包数 |
 | --- | --- |
-| `bash` | 38 |
+| `bash` | 39 |
 | `codex-environment` | 17 |
 | `desktop-or-specialist-software` | 11 |
 | `local-paths` | 29 |
-| `mcp-tools` | 42 |
+| `mcp-tools` | 43 |
 | `node` | 8 |
 | `powershell` | 6 |
-| `python` | 202 |
+| `python` | 213 |
 
-默认安装 651 个主版本，128 个 variants 仅按需安装。
+默认安装 669 个主版本，128 个 variants 仅按需安装。
 同一技能可能有多个标签。大量技能的描述会占用上下文，可用 -Name 按需安装。
 云端请将目标设为实际 CLAUDE_CONFIG_DIR 下的 skills 目录，避免装入 SSM SYSTEM 用户目录。
 API Key、账号登录和 MCP 授权需要在云服务器单独配置，不从本仓库提供。

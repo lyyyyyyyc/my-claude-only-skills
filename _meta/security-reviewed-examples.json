@@ -369,6 +369,14 @@
       "endLine": 119,
       "fileSha256": "489a57edcb2332e40759b6447a1bb0ee24503ccab96f8f14f3d0ec747909303f",
       "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/nature-image2ppt/tests/test_ocr_http.py",
+      "rule": "generic-api-key",
+      "startLine": 109,
+      "endLine": 109,
+      "fileSha256": "585e5a51db9d49853c90edb69ec4cf4fce3738258dd87465ee0eb5fb5c2a72cd",
+      "reason": "Synthetic secret-token string passed to a mocked OCR HTTP function in an upstream unit test."
     }
   ]
 }

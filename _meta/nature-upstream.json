@@ -1,0 +1,87 @@
+{
+  "upstream": "Yuan1z0825/nature-skills",
+  "commit": "a1a8220366e82ecd8584ea3d7f46cb3969f4b018",
+  "checkedOn": "2026-11-10",
+  "checked": 18,
+  "updated": [
+    "nature-academic-search",
+    "nature-citation",
+    "nature-figure",
+    "nature-image2ppt",
+    "nature-paper-card",
+    "nature-paper-to-patent",
+    "nature-paper2ppt",
+    "nature-response",
+    "nature-reviewer",
+    "nature-shared"
+  ],
+  "unchanged": [
+    "nature-data",
+    "nature-experiment-log",
+    "nature-literature-pipeline",
+    "nature-polishing",
+    "nature-reader",
+    "nature-ref-verifier",
+    "nature-statistics",
+    "nature-writing"
+  ],
+  "excludedFromUpdateAndExport": [
+    "nature-downloader"
+  ],
+  "sourceFilesMatchPinnedUpstream": true,
+  "bodyPreservedDuringMetadataNormalization": true,
+  "pythonFilesParsed": 170,
+  "regressionTests": [
+    {
+      "group": "academic-search",
+      "exitCode": 0,
+      "summary": "23 passed in 4.10s"
+    },
+    {
+      "group": "citation",
+      "exitCode": 0,
+      "summary": "23 passed in 0.12s"
+    },
+    {
+      "group": "figure",
+      "exitCode": 0,
+      "summary": "3 passed in 0.05s"
+    },
+    {
+      "group": "paper-card",
+      "exitCode": 0,
+      "summary": "16 passed in 0.22s"
+    },
+    {
+      "group": "paper-to-patent",
+      "exitCode": 0,
+      "summary": "9 passed in 0.37s"
+    },
+    {
+      "group": "response",
+      "exitCode": 0,
+      "summary": "10 passed in 0.19s"
+    },
+    {
+      "group": "reviewer",
+      "exitCode": 0,
+      "summary": "5 passed in 0.02s"
+    },
+    {
+      "group": "shared",
+      "exitCode": 0,
+      "summary": "9 passed in 0.07s"
+    },
+    {
+      "group": "image2ppt",
+      "exitCode": 0,
+      "summary": "23 passed in 0.81s"
+    },
+    {
+      "group": "image2ppt-url-safety",
+      "exitCode": 0,
+      "summary": "3 passed in 0.50s"
+    }
+  ],
+  "excludedForActualApiKeys": []
+}
