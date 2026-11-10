@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cell Lct Local"
+  short_description: "Create local editable SVGs for Illustrator without an image API"
+  default_prompt: "Use $cell-lct-local to reconstruct this scientific figure locally as editable SVG and append it to my already open Illustrator document. Do not upload the reference image."

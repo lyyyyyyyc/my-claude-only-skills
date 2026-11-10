@@ -1,0 +1,7 @@
+{
+  "tasks": [
+    {"condition": "condition_a", "seed": 101},
+    {"condition": "condition_b", "seed": 101},
+    {"condition": "condition_a", "seed": 102}
+  ]
+}

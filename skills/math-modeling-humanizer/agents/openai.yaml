@@ -1,0 +1,4 @@
+interface:
+  display_name: "Math Modeling Humanizer"
+  short_description: "自然化数学建模论文表达，保留事实与证据"
+  default_prompt: "Use $math-modeling-humanizer to naturalize my mathematical modeling manuscript without changing its data, formulas, citations, or conclusions."

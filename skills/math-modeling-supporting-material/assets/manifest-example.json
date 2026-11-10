@@ -1,0 +1,18 @@
+{
+  "schema_version": 3,
+  "paper_versions": ["论文终稿"],
+  "required_sections": ["预处理", "问题一", "敏感性与稳健性", "绘图"],
+  "sources": [
+    {"path": "源程序的项目相对路径", "sha256": "实际源文件SHA256", "sections": ["问题一"], "scripts": ["Code/02_problem1.py"]}
+  ],
+  "helpers": [],
+  "result_groups": ["problem_1_results"],
+  "private_terms": [],
+  "artifacts": [
+    {"id": "图1", "kind": "paper_figure", "paper_version": "论文终稿", "path": "Figures/paper_figures/01.png", "sha256": "脱敏后图片SHA256"},
+    {"id": "表1", "kind": "paper_table", "paper_version": "论文终稿", "path": "Figures/paper_tables/01_表格标题.xlsx", "sheet": "表1"},
+    {"id": "问题一答案", "kind": "result", "path": "Figures/results/problem_1_results/问题一结果.xlsx", "sheet": "企业方案", "source_output": "原输出/问题一结果.xlsx", "answer_to": "填写此表直接回答的题意要求"}
+  ],
+  "external_data": [],
+  "verification": "verification.json"
+}

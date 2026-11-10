@@ -1,0 +1,5 @@
+{
+  "tasks": [
+    {"condition": "condition_a", "seed": 301}
+  ]
+}

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Math Modeling Model And Methods"
+  short_description: "Choose candidate models and methods by mathematical-modeling problem type"
+  default_prompt: "Use $math-modeling-model-and-methods to classify a mathematical modeling problem and inspect candidate models and methods."
+
+policy:
+  allow_implicit_invocation: true

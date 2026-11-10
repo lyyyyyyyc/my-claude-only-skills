@@ -1,0 +1,168 @@
+import zipfile
+from pathlib import Path
+
+import pytest
+
+import scripts.package_skill as package_module
+from scripts.package_skill import package_skill, should_exclude
+from scripts.security_scan import calculate_skill_hash
+
+
+@pytest.mark.parametrize(
+    "rel_path,expected",
+    [
+        (Path("my-skill/__pycache__/foo.cpython-313.pyc"), True),
+        (Path("my-skill/scripts/__pycache__/bar.py"), True),
+        (Path("my-skill/node_modules/lodash/index.js"), True),
+        (Path("my-skill/.pytest_cache/v/cache/nodeids"), True),
+        (Path("my-skill/.DS_Store"), True),
+        (Path("my-skill/.skill-regression-reviewed"), True),
+        (Path("my-skill/evals/evals.json"), True),
+        (Path("my-skill/dist/my-skill.skill"), True),
+        (Path("my-skill/tests/test_runtime.py"), True),
+        (Path("my-skill/.enrich/run/manifest.json"), True),
+        (Path("my-skill/scripts/nested/evals/helper.py"), False),
+        (Path("my-skill/references/guide.md"), False),
+        (Path("my-skill/SKILL.md"), False),
+    ],
+)
+def test_should_exclude(rel_path, expected):
+    assert should_exclude(rel_path) is expected
+
+
+def _make_minimal_skill(tmp_path: Path, name: str = "minimal-skill") -> Path:
+    """Create a minimal valid skill folder and its security marker."""
+    skill_dir = tmp_path / name
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text(
+        f"---\nname: {name}\ndescription: A minimal skill for testing\n---\n\n# Minimal\n",
+        encoding="utf-8",
+    )
+    return skill_dir
+
+
+def _add_security_marker(skill_dir: Path) -> None:
+    """Write a .security-scan-passed marker matching the current content hash."""
+    content_hash = calculate_skill_hash(skill_dir)
+    (skill_dir / ".security-scan-passed").write_text(
+        f"Security scan passed\nContent hash: {content_hash}\n", encoding="utf-8"
+    )
+
+
+def test_package_skill_default_output_path(tmp_path):
+    skill_dir = _make_minimal_skill(tmp_path, "test-skill")
+    _add_security_marker(skill_dir)
+
+    artifact = package_skill(skill_dir, new_skill=True)
+
+    assert artifact is not None
+    expected = skill_dir / "dist" / "test-skill.skill"
+    assert artifact == expected
+    assert artifact.exists()
+    assert artifact.parent == skill_dir / "dist"
+
+
+def test_package_skill_custom_output_dir(tmp_path):
+    skill_dir = _make_minimal_skill(tmp_path, "test-skill")
+    _add_security_marker(skill_dir)
+    custom_dir = tmp_path / "custom-artifacts"
+
+    artifact = package_skill(skill_dir, output_dir=str(custom_dir), new_skill=True)
+
+    assert artifact is not None
+    assert artifact == custom_dir / "test-skill.skill"
+    assert artifact.exists()
+    # Default dist/ should NOT be created when a custom dir is provided.
+    assert not (skill_dir / "dist").exists()
+
+
+def test_package_skill_artifact_contains_skill_files(tmp_path):
+    skill_dir = _make_minimal_skill(tmp_path, "test-skill")
+    (skill_dir / "references").mkdir()
+    (skill_dir / "references" / "guide.md").write_text("# Guide\n", encoding="utf-8")
+    (skill_dir / "tests").mkdir()
+    (skill_dir / "tests" / "test_runtime.py").write_text("assert True\n", encoding="utf-8")
+    (skill_dir / ".enrich" / "run").mkdir(parents=True)
+    (skill_dir / ".enrich" / "run" / "manifest.json").write_text("{}\n", encoding="utf-8")
+    _add_security_marker(skill_dir)
+
+    artifact = package_skill(skill_dir, new_skill=True)
+
+    with zipfile.ZipFile(artifact, "r") as zf:
+        names = zf.namelist()
+    assert any("SKILL.md" in n for n in names)
+    assert any("references/guide.md" in n for n in names)
+    # Excluded files should not be packaged.
+    assert not any("__pycache__" in n for n in names)
+    assert not any(".security-scan-passed" in n for n in names)
+    assert not any("tests/" in n for n in names)
+    assert not any(".enrich/" in n for n in names)
+
+
+def test_package_skill_artifact_excludes_dist_directory(tmp_path):
+    skill_dir = _make_minimal_skill(tmp_path, "test-skill")
+    (skill_dir / "dist").mkdir()
+    (skill_dir / "dist" / "old-artifact.skill").write_text("fake", encoding="utf-8")
+    _add_security_marker(skill_dir)
+
+    artifact = package_skill(skill_dir, new_skill=True)
+
+    with zipfile.ZipFile(artifact, "r") as zf:
+        names = zf.namelist()
+    assert not any("dist/" in n for n in names)
+    assert any("SKILL.md" in n for n in names)
+
+
+def test_package_skill_missing_security_marker(tmp_path, capsys):
+    skill_dir = tmp_path / "unsafe-skill"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text(
+        "---\nname: unsafe-skill\ndescription: no security scan\n---\n", encoding="utf-8"
+    )
+
+    artifact = package_skill(skill_dir, new_skill=True)
+
+    assert artifact is None
+    captured = capsys.readouterr()
+    assert "Security scan not completed" in captured.out
+
+
+def test_package_skill_missing_skill_md(tmp_path, capsys):
+    skill_dir = tmp_path / "bad-skill"
+    skill_dir.mkdir()
+
+    artifact = package_skill(skill_dir)
+
+    assert artifact is None
+    captured = capsys.readouterr()
+    assert "SKILL.md not found" in captured.out
+
+
+def test_package_skill_blocks_changed_existing_skill_without_regression_review(tmp_path, capsys, monkeypatch):
+    skill_dir = _make_minimal_skill(tmp_path, "changed-skill")
+    _add_security_marker(skill_dir)
+    monkeypatch.setattr(
+        package_module,
+        "requires_regression_review",
+        lambda _path, **_kwargs: (True, "existing Git-tracked skill has no attestation"),
+    )
+
+    artifact = package_skill(skill_dir)
+
+    assert artifact is None
+    assert "Existing skills require their completed old-vs-new capability review" in capsys.readouterr().out
+
+
+def test_package_skill_accepts_current_completed_regression_review(tmp_path, monkeypatch):
+    skill_dir = _make_minimal_skill(tmp_path, "changed-skill")
+    _add_security_marker(skill_dir)
+    review = tmp_path / "review.json"
+    review.write_text("{}\n", encoding="utf-8")
+    monkeypatch.setattr(package_module, "requires_regression_review", lambda _path, **_kwargs: (True, "changed"))
+    monkeypatch.setattr(package_module, "verify_review_for_after", lambda _review, _after: (True, []))
+    monkeypatch.setattr(package_module, "create_regression_marker", lambda _after, _review: None)
+
+    artifact = package_skill(skill_dir, regression_review=review)
+
+    assert artifact is not None
+    assert artifact.exists()

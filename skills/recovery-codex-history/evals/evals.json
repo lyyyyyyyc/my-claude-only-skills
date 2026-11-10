@@ -1,0 +1,23 @@
+{
+  "skill_name": "recovery-codex-history",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "[$recovery-codex-history] 给我恢复我的CODEX聊天记录",
+      "expected_output": "Uses the Codex history recovery workflow, runs or proposes status -> backup -> sync, avoids printing secrets, and explains that recovery only works for local history still present in .codex.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "我刚换了中转，Codex 左边历史记录空了，帮我恢复",
+      "expected_output": "Recognizes relay/provider switch as the trigger, uses the upstream GODGOD126/codex-history-sync-tool wrapper, and tells the user to restart Codex Desktop after sync.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "切换 provider 后以前的 Codex 对话看不到了，先备份再同步",
+      "expected_output": "Runs status and backup before sync, reports the helper repo directory and backup directory, and does not delete local history files.",
+      "files": []
+    }
+  ]
+}

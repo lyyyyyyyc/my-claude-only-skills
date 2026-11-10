@@ -1,0 +1,4 @@
+interface:
+  display_name: "Math Modeling Code Simplifier"
+  short_description: "将数模代码压缩为可复现可审查可提交的简洁实现与规范"
+  default_prompt: "请按简化代码skill重构当前数模代码，优先.py并保持可复现。"

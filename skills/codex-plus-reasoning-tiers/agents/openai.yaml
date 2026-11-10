@@ -1,0 +1,3 @@
+interface:
+  display_name: "Codex Plus Reasoning Tiers"
+  short_description: "恢复 Codex++ 中转模型缺失的 max/ultra 思考档位"

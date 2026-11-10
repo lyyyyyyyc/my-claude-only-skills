@@ -1,0 +1,4 @@
+interface:
+  display_name: "Menu Diangong Cup Paper Styler"
+  short_description: "Render 电工杯 papers into styled DOCX"
+  default_prompt: "Render a Diangong Cup paper into a styled DOCX with the bundled template."

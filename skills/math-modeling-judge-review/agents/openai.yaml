@@ -1,0 +1,4 @@
+interface:
+  display_name: "Math Modeling Judge Review"
+  short_description: "按CUMCM官方口径输出高/中风险扣分点与亮点审查结果"
+  default_prompt: "请用 $math-modeling-judge-review 对我提供的数模材料做评委审核，输出高风险、中风险、做得好的点，并单列结果核查。"

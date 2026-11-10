@@ -1,0 +1,6 @@
+scripts/*.ps1 text eol=lf
+scripts/*.py text eol=lf
+*.md text eol=lf
+skills/** -text
+variants/** -text
+_meta/codex-export.json -text

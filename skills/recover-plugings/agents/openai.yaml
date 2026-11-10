@@ -1,0 +1,4 @@
+interface:
+  display_name: "Recover Plugings"
+  short_description: "Recover Codex plugins after API-key auth changes"
+  default_prompt: "Recover my Codex plugins after switching to API key auth"

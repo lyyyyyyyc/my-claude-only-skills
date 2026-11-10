@@ -1,0 +1,374 @@
+{
+  "schemaVersion": 1,
+  "gitleaksVersion": "8.30.1",
+  "examples": [
+    {
+      "path": "skills/autoskill/tests/test_redact.py",
+      "rule": "generic-api-key",
+      "startLine": 97,
+      "endLine": 97,
+      "fileSha256": "93ca8e23aa92f68d1c91c575339d813e9eabcc61359c6548be84b8cad36a2cc2",
+      "reason": "Synthetic redaction unit-test fixture, not a usable credential."
+    },
+    {
+      "path": "skills/autoskill/tests/test_redact.py",
+      "rule": "private-key",
+      "startLine": 78,
+      "endLine": 80,
+      "fileSha256": "93ca8e23aa92f68d1c91c575339d813e9eabcc61359c6548be84b8cad36a2cc2",
+      "reason": "Synthetic redaction unit-test fixture, not a usable credential."
+    },
+    {
+      "path": "skills/benchling-integration/references/api_endpoints.md",
+      "rule": "curl-auth-user",
+      "startLine": 24,
+      "endLine": 26,
+      "fileSha256": "2ad0b81a00f5853f24b2c3c6f6378fd78af0025a576c4b7e0ad35a26b4ba81c2",
+      "reason": "Authentication documentation uses explicit placeholder credentials."
+    },
+    {
+      "path": "skills/benchling-integration/references/api_endpoints.md",
+      "rule": "curl-auth-header",
+      "startLine": 31,
+      "endLine": 33,
+      "fileSha256": "2ad0b81a00f5853f24b2c3c6f6378fd78af0025a576c4b7e0ad35a26b4ba81c2",
+      "reason": "Authentication documentation uses explicit placeholder credentials."
+    },
+    {
+      "path": "skills/benchling-integration/references/authentication.md",
+      "rule": "curl-auth-header",
+      "startLine": 112,
+      "endLine": 114,
+      "fileSha256": "dd38e9fbaa984f804d7bd27e89e15eea72ac6d839d0e84bbe6afba15b6610c6c",
+      "reason": "Authentication documentation uses explicit placeholder credentials."
+    },
+    {
+      "path": "skills/benchling-integration/references/authentication.md",
+      "rule": "curl-auth-header",
+      "startLine": 155,
+      "endLine": 157,
+      "fileSha256": "dd38e9fbaa984f804d7bd27e89e15eea72ac6d839d0e84bbe6afba15b6610c6c",
+      "reason": "Authentication documentation uses explicit placeholder credentials."
+    },
+    {
+      "path": "skills/benchling-integration/references/authentication.md",
+      "rule": "curl-auth-header",
+      "startLine": 305,
+      "endLine": 307,
+      "fileSha256": "dd38e9fbaa984f804d7bd27e89e15eea72ac6d839d0e84bbe6afba15b6610c6c",
+      "reason": "Authentication documentation uses explicit placeholder credentials."
+    },
+    {
+      "path": "skills/benchling-integration/references/authentication.md",
+      "rule": "curl-auth-user",
+      "startLine": 36,
+      "endLine": 38,
+      "fileSha256": "dd38e9fbaa984f804d7bd27e89e15eea72ac6d839d0e84bbe6afba15b6610c6c",
+      "reason": "Authentication documentation uses explicit placeholder credentials."
+    },
+    {
+      "path": "skills/benchling-integration/references/authentication.md",
+      "rule": "curl-auth-user",
+      "startLine": 296,
+      "endLine": 301,
+      "fileSha256": "dd38e9fbaa984f804d7bd27e89e15eea72ac6d839d0e84bbe6afba15b6610c6c",
+      "reason": "Authentication documentation uses explicit placeholder credentials."
+    },
+    {
+      "path": "skills/database-lookup/references/noaa.md",
+      "rule": "curl-auth-header",
+      "startLine": 47,
+      "endLine": 47,
+      "fileSha256": "7ca8e5f5b9986206bf4fb88e3cbbdcf240474483f232834a7bcd1f2dbef468e6",
+      "reason": "NOAA documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/database-lookup/references/noaa.md",
+      "rule": "curl-auth-header",
+      "startLine": 90,
+      "endLine": 90,
+      "fileSha256": "7ca8e5f5b9986206bf4fb88e3cbbdcf240474483f232834a7bcd1f2dbef468e6",
+      "reason": "NOAA documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/database-lookup/references/noaa.md",
+      "rule": "curl-auth-header",
+      "startLine": 114,
+      "endLine": 114,
+      "fileSha256": "7ca8e5f5b9986206bf4fb88e3cbbdcf240474483f232834a7bcd1f2dbef468e6",
+      "reason": "NOAA documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/database-lookup/references/noaa.md",
+      "rule": "curl-auth-header",
+      "startLine": 144,
+      "endLine": 144,
+      "fileSha256": "7ca8e5f5b9986206bf4fb88e3cbbdcf240474483f232834a7bcd1f2dbef468e6",
+      "reason": "NOAA documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/database-lookup/references/noaa.md",
+      "rule": "curl-auth-header",
+      "startLine": 179,
+      "endLine": 179,
+      "fileSha256": "7ca8e5f5b9986206bf4fb88e3cbbdcf240474483f232834a7bcd1f2dbef468e6",
+      "reason": "NOAA documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/figma-implement-design/SKILL.md",
+      "rule": "generic-api-key",
+      "startLine": 59,
+      "endLine": 59,
+      "fileSha256": "6d63b61be9fe4273342e591935d9501900a9154c42713c94db64e71834a99704",
+      "reason": "Figma example file identifier; file identifiers are not authentication secrets."
+    },
+    {
+      "path": "skills/figma-implement-design/SKILL.md",
+      "rule": "generic-api-key",
+      "startLine": 179,
+      "endLine": 179,
+      "fileSha256": "6d63b61be9fe4273342e591935d9501900a9154c42713c94db64e71834a99704",
+      "reason": "Figma example file identifier; file identifiers are not authentication secrets."
+    },
+    {
+      "path": "skills/figma-implement-design/SKILL.md",
+      "rule": "generic-api-key",
+      "startLine": 180,
+      "endLine": 180,
+      "fileSha256": "6d63b61be9fe4273342e591935d9501900a9154c42713c94db64e71834a99704",
+      "reason": "Figma example file identifier; file identifiers are not authentication secrets."
+    },
+    {
+      "path": "skills/figma-implement-design/SKILL.md",
+      "rule": "generic-api-key",
+      "startLine": 181,
+      "endLine": 181,
+      "fileSha256": "6d63b61be9fe4273342e591935d9501900a9154c42713c94db64e71834a99704",
+      "reason": "Figma example file identifier; file identifiers are not authentication secrets."
+    },
+    {
+      "path": "skills/figma-implement-design/SKILL.md",
+      "rule": "generic-api-key",
+      "startLine": 196,
+      "endLine": 196,
+      "fileSha256": "6d63b61be9fe4273342e591935d9501900a9154c42713c94db64e71834a99704",
+      "reason": "Figma example file identifier; file identifiers are not authentication secrets."
+    },
+    {
+      "path": "skills/figma-implement-design/SKILL.md",
+      "rule": "generic-api-key",
+      "startLine": 197,
+      "endLine": 197,
+      "fileSha256": "6d63b61be9fe4273342e591935d9501900a9154c42713c94db64e71834a99704",
+      "reason": "Figma example file identifier; file identifiers are not authentication secrets."
+    },
+    {
+      "path": "skills/figma-implement-design/SKILL.md",
+      "rule": "generic-api-key",
+      "startLine": 199,
+      "endLine": 199,
+      "fileSha256": "6d63b61be9fe4273342e591935d9501900a9154c42713c94db64e71834a99704",
+      "reason": "Figma example file identifier; file identifiers are not authentication secrets."
+    },
+    {
+      "path": "skills/figma-implement-design/SKILL.md",
+      "rule": "generic-api-key",
+      "startLine": 200,
+      "endLine": 200,
+      "fileSha256": "6d63b61be9fe4273342e591935d9501900a9154c42713c94db64e71834a99704",
+      "reason": "Figma example file identifier; file identifiers are not authentication secrets."
+    },
+    {
+      "path": "skills/jwt-security/SKILL.md",
+      "rule": "jwt",
+      "startLine": 411,
+      "endLine": 411,
+      "fileSha256": "48c96f8e10387ea84d364268bb2be05168177bb08760c6f57e7170a8d387c000",
+      "reason": "Deliberately unsigned JWT with alg=none in a rejection unit-test example."
+    },
+    {
+      "path": "skills/protocolsio-integration/references/discussions.md",
+      "rule": "curl-auth-header",
+      "startLine": 44,
+      "endLine": 45,
+      "fileSha256": "eed4e21867786de15c616d255a11af6f9b1eefdec43d36350426a2754414d094",
+      "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/protocolsio-integration/references/discussions.md",
+      "rule": "curl-auth-header",
+      "startLine": 58,
+      "endLine": 59,
+      "fileSha256": "eed4e21867786de15c616d255a11af6f9b1eefdec43d36350426a2754414d094",
+      "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/protocolsio-integration/references/discussions.md",
+      "rule": "curl-auth-header",
+      "startLine": 117,
+      "endLine": 118,
+      "fileSha256": "eed4e21867786de15c616d255a11af6f9b1eefdec43d36350426a2754414d094",
+      "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/protocolsio-integration/references/additional_features.md",
+      "rule": "curl-auth-header",
+      "startLine": 31,
+      "endLine": 31,
+      "fileSha256": "d8ec947a7a7e6fa84aba3373e3fb019133370eef5ce1fda25adca28eae6c53c5",
+      "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/protocolsio-integration/references/additional_features.md",
+      "rule": "curl-auth-header",
+      "startLine": 54,
+      "endLine": 55,
+      "fileSha256": "d8ec947a7a7e6fa84aba3373e3fb019133370eef5ce1fda25adca28eae6c53c5",
+      "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/protocolsio-integration/references/additional_features.md",
+      "rule": "curl-auth-header",
+      "startLine": 103,
+      "endLine": 103,
+      "fileSha256": "d8ec947a7a7e6fa84aba3373e3fb019133370eef5ce1fda25adca28eae6c53c5",
+      "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/protocolsio-integration/references/additional_features.md",
+      "rule": "curl-auth-header",
+      "startLine": 142,
+      "endLine": 143,
+      "fileSha256": "d8ec947a7a7e6fa84aba3373e3fb019133370eef5ce1fda25adca28eae6c53c5",
+      "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/protocolsio-integration/references/additional_features.md",
+      "rule": "curl-auth-header",
+      "startLine": 217,
+      "endLine": 217,
+      "fileSha256": "d8ec947a7a7e6fa84aba3373e3fb019133370eef5ce1fda25adca28eae6c53c5",
+      "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/protocolsio-integration/references/additional_features.md",
+      "rule": "curl-auth-header",
+      "startLine": 266,
+      "endLine": 266,
+      "fileSha256": "d8ec947a7a7e6fa84aba3373e3fb019133370eef5ce1fda25adca28eae6c53c5",
+      "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/protocolsio-integration/references/file_manager.md",
+      "rule": "curl-auth-header",
+      "startLine": 41,
+      "endLine": 41,
+      "fileSha256": "dd22518c34297235d61efb55135aa00bbdd3bb5253b7b3f1fba0c8ce9fe39c37",
+      "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/protocolsio-integration/references/file_manager.md",
+      "rule": "curl-auth-header",
+      "startLine": 63,
+      "endLine": 63,
+      "fileSha256": "dd22518c34297235d61efb55135aa00bbdd3bb5253b7b3f1fba0c8ce9fe39c37",
+      "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/protocolsio-integration/references/file_manager.md",
+      "rule": "curl-auth-header",
+      "startLine": 86,
+      "endLine": 87,
+      "fileSha256": "dd22518c34297235d61efb55135aa00bbdd3bb5253b7b3f1fba0c8ce9fe39c37",
+      "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/protocolsio-integration/references/file_manager.md",
+      "rule": "curl-auth-header",
+      "startLine": 122,
+      "endLine": 122,
+      "fileSha256": "dd22518c34297235d61efb55135aa00bbdd3bb5253b7b3f1fba0c8ce9fe39c37",
+      "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/protocolsio-integration/references/file_manager.md",
+      "rule": "curl-auth-header",
+      "startLine": 155,
+      "endLine": 156,
+      "fileSha256": "dd22518c34297235d61efb55135aa00bbdd3bb5253b7b3f1fba0c8ce9fe39c37",
+      "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/protocolsio-integration/references/file_manager.md",
+      "rule": "curl-auth-header",
+      "startLine": 194,
+      "endLine": 195,
+      "fileSha256": "dd22518c34297235d61efb55135aa00bbdd3bb5253b7b3f1fba0c8ce9fe39c37",
+      "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/protocolsio-integration/references/file_manager.md",
+      "rule": "curl-auth-header",
+      "startLine": 238,
+      "endLine": 239,
+      "fileSha256": "dd22518c34297235d61efb55135aa00bbdd3bb5253b7b3f1fba0c8ce9fe39c37",
+      "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/protocolsio-integration/references/protocols_api.md",
+      "rule": "curl-auth-header",
+      "startLine": 45,
+      "endLine": 45,
+      "fileSha256": "920307225bf91279b52e62e2ac8007ae525a65a84a9f2fae37f46feeed98d9ef",
+      "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/protocolsio-integration/references/protocols_api.md",
+      "rule": "curl-auth-header",
+      "startLine": 97,
+      "endLine": 98,
+      "fileSha256": "920307225bf91279b52e62e2ac8007ae525a65a84a9f2fae37f46feeed98d9ef",
+      "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/protocolsio-integration/references/protocols_api.md",
+      "rule": "curl-auth-header",
+      "startLine": 135,
+      "endLine": 136,
+      "fileSha256": "920307225bf91279b52e62e2ac8007ae525a65a84a9f2fae37f46feeed98d9ef",
+      "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/protocolsio-integration/references/protocols_api.md",
+      "rule": "curl-auth-header",
+      "startLine": 200,
+      "endLine": 201,
+      "fileSha256": "920307225bf91279b52e62e2ac8007ae525a65a84a9f2fae37f46feeed98d9ef",
+      "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/protocolsio-integration/references/workspaces.md",
+      "rule": "curl-auth-header",
+      "startLine": 32,
+      "endLine": 32,
+      "fileSha256": "489a57edcb2332e40759b6447a1bb0ee24503ccab96f8f14f3d0ec747909303f",
+      "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/protocolsio-integration/references/workspaces.md",
+      "rule": "curl-auth-header",
+      "startLine": 80,
+      "endLine": 81,
+      "fileSha256": "489a57edcb2332e40759b6447a1bb0ee24503ccab96f8f14f3d0ec747909303f",
+      "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    },
+    {
+      "path": "skills/protocolsio-integration/references/workspaces.md",
+      "rule": "curl-auth-header",
+      "startLine": 119,
+      "endLine": 119,
+      "fileSha256": "489a57edcb2332e40759b6447a1bb0ee24503ccab96f8f14f3d0ec747909303f",
+      "reason": "Protocols.io documentation uses the literal YOUR_TOKEN placeholder."
+    }
+  ]
+}

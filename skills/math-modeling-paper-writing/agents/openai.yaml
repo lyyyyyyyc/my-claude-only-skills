@@ -1,0 +1,7 @@
+interface:
+  display_name: "Math Modeling Paper Writing"
+  short_description: "Fixed 11-section guidance for math-modeling papers"
+  default_prompt: "Use $math-modeling-paper-writing to draft a math-modeling paper under the fixed 11-section structure, with Questions 1, 2, and 3 modeled in separate sections."
+
+policy:
+  allow_implicit_invocation: true

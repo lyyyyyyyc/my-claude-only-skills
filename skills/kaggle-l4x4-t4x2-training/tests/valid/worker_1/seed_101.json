@@ -1,0 +1,6 @@
+{
+  "condition": "condition_b",
+  "seed": 101,
+  "status": "success",
+  "test_acc": 0.79
+}

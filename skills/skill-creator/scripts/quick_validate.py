@@ -1,0 +1,480 @@
+#!/usr/bin/env python3
+"""
+Quick validation script for skills - minimal version
+"""
+
+import sys
+import os
+import re
+from pathlib import Path
+
+try:
+    import yaml
+except ModuleNotFoundError:
+    print(
+        "Missing dependency: PyYAML.\n"
+        "Run validation with an explicit dependency declaration:\n"
+        "  uv run --with PyYAML python skill-creator/scripts/quick_validate.py <skill_directory>\n"
+        "Or from the skill-creator directory:\n"
+        "  uv run --with PyYAML python -m scripts.quick_validate <skill_directory>\n"
+        "For packaging from the skill-creator directory:\n"
+        "  uv run --with PyYAML python -m scripts.package_skill <skill_directory>",
+        file=sys.stderr,
+    )
+    sys.exit(2)
+
+
+def find_invalid_frontmatter_indentation(frontmatter: str) -> list[tuple[int, str]]:
+    """
+    Detect non-space indentation characters in YAML frontmatter.
+
+    YAML indentation must use ASCII spaces. Tabs or non-ASCII whitespace
+    (e.g., NBSP) can cause YAML parse errors.
+    """
+    issues = []
+    for line_no, line in enumerate(frontmatter.splitlines(), start=1):
+        # Scan leading whitespace only.
+        for ch in line:
+            if not ch.isspace():
+                break
+            if ch != ' ':
+                issues.append((line_no, ch))
+                break
+    return issues
+
+
+def describe_whitespace(ch: str) -> str:
+    if ch == '\t':
+        return "TAB"
+    return f"U+{ord(ch):04X}"
+
+
+def find_internal_path_references(content: str) -> list[str]:
+    """
+    Extract skill-internal path references from SKILL.md content.
+    Looks for patterns like scripts/xxx, references/xxx, assets/xxx
+
+    Only returns paths that are clearly internal to the skill bundle.
+    Filters out:
+    - Placeholder paths (<path>, example, etc.)
+    - Absolute paths (these are external by definition)
+    - Paths in example contexts
+    - External tool references
+    """
+    # Pattern: relative paths starting with scripts/, references/, or assets/
+    # that do NOT start with / or ~ (absolute paths). The lookbehind also
+    # excludes `-` and `.` so a hyphenated/dotted parent dir doesn't donate a
+    # false bundle prefix: `05-voiceprint-references/centroids.json` must not
+    # match `references/centroids.json`.
+    pattern = r'(?<![A-Za-z0-9_/.\-])(?:scripts|references|assets)/[\w./-]+'
+
+    unique_paths = set()
+    for line in content.split('\n'):
+        line_lower = line.lower()
+        if any(x in line_lower for x in [
+            'example:', 'examples:', 'e.g.', 'for example',
+            '- **example', '- example:', 'such as',
+            'pattern:', 'usage:', '❌', '✅',
+            '- **allowed', '- **best practice', 'would be helpful',
+            'like `scripts/', 'like `references/', 'like `assets/',
+        ]):
+            continue
+
+        matches = re.finditer(pattern, line)
+        for m in matches:
+            path = m.group(0)
+            # A match immediately followed by a glob/brace/placeholder char is
+            # a PATTERN, not a file reference: `references/install_*.md`,
+            # `install_<system>.md`, `install_{a,b}.md` all truncate to
+            # `install_` and would false-positive as a missing file.
+            if line[m.end():m.end() + 1] in ('*', '{', '[', '<'):
+                continue
+            # The char class includes `.`, so a sentence-ending period gets
+            # swallowed: "use `scripts/foo.py`." -> "scripts/foo.py." — no
+            # real file ends in a bare dot; strip trailing dots.
+            path = path.rstrip('.')
+            if not path or '/' not in path:
+                continue
+            # Skip placeholders
+            if any(x in path.lower() for x in ['example', 'xxx', '<', '>', 'my-', 'my_']):
+                continue
+            # Skip absolute paths (they're external, not internal skill references)
+            if path.startswith('/') or path.startswith('~'):
+                continue
+            # Skip false positives like "scripts/assets" / "references/scripts"
+            parts = path.split('/')
+            if len(parts) >= 2 and parts[1] in {'scripts', 'references', 'assets'}:
+                continue
+            unique_paths.add(path)
+
+    return list(unique_paths)
+
+
+def detect_audience(skill_path: Path) -> tuple[str, str]:
+    """Is this skill headed somewhere public, or is it the user's own private tooling?
+
+    Several checks below (absolute home paths, personal identifiers) describe real
+    problems *for a skill that ships to strangers* and describe nothing at all for a
+    skill that lives in the author's private repo — there, a real absolute path is
+    usually the reason the script runs at all, and "fixing" it breaks the tool.
+
+    Auto-detected rather than flag-driven, per this skill's own "Auto-Detection Over
+    Manual Flags" principle: the destination repo already knows whether it is public,
+    and `gh` already has to be consulted before any push (Push Safety). Returns
+    ('public' | 'private' | 'unknown', how-we-know).
+    """
+    import json as _json
+    import shutil as _shutil
+    import subprocess as _subprocess
+
+    root = Path(skill_path).resolve()
+    for candidate in [root, *root.parents]:
+        if (candidate / ".git").exists():
+            root = candidate
+            break
+    else:
+        return "unknown", "not inside a git repository"
+
+    if not _shutil.which("gh"):
+        return "unknown", "gh CLI not installed"
+    try:
+        out = _subprocess.run(
+            ["gh", "repo", "view", "--json", "isPrivate,nameWithOwner"],
+            cwd=root, capture_output=True, text=True, timeout=8,
+        )
+    except (OSError, _subprocess.SubprocessError):
+        return "unknown", "gh invocation failed"
+    if out.returncode != 0:
+        return "unknown", "no GitHub remote resolvable"
+    try:
+        data = _json.loads(out.stdout)
+    except ValueError:
+        return "unknown", "unparseable gh output"
+    name = data.get("nameWithOwner", "repo")
+    return ("private" if data.get("isPrivate") else "public"), f"gh: {name}"
+
+
+def find_external_absolute_paths(content: str) -> list[tuple[int, str]]:
+    """
+    Find absolute paths that contain user home directories.
+    These are personal data that won't work on other machines.
+    Returns list of (line_number, path).
+    """
+    issues = []
+    # Match /Users/<user>/ and /home/<user>/ patterns
+    pattern = re.compile(r'(/[Uu]sers/[A-Za-z][A-Za-z0-9_-]+/[^\s,;"\']+|/home/[A-Za-z][A-Za-z0-9_-]+/[^\s,;"\']+|[A-Za-z]:\\+Users\\+[A-Za-z][A-Za-z0-9_-]+\\+[^\s,;"\']*)')
+
+    # Placeholder detection must inspect the USERNAME SEGMENT only. The old check
+    # (`'user' in path.lower()`) skipped every macOS path outright — '/Users/' itself
+    # contains "user" — so this scanner had never flagged a single real path. Caught
+    # by scripts/selftest_validators.py test 4.
+    placeholder_users = {'user', 'username', 'yourname', 'your-name', 'name',
+                         'someone', 'example', 'placeholder', 'me'}
+    user_seg = re.compile(r'^(?:/[Uu]sers|/home)/([^/]+)/|^C:\\+Users\\+([^\\]+)\\')
+
+    for line_no, line in enumerate(content.split('\n'), 1):
+        # Skip code blocks that are clearly examples/placeholders
+        stripped = line.strip()
+        if stripped.startswith('#') or '<path' in stripped or 'example' in stripped.lower():
+            continue
+        for match in pattern.finditer(line):
+            path = match.group(0)
+            if '<' in path:
+                continue
+            seg_match = user_seg.match(path)
+            seg = ((seg_match.group(1) or seg_match.group(2)) if seg_match else '').lower()
+            if seg in placeholder_users:
+                continue
+            issues.append((line_no, path))
+
+    return issues
+
+
+def find_personal_identifiers(content: str) -> list[tuple[int, str, str]]:
+    """
+    Find personal identifiers that are likely project-specific:
+    - Real-looking profile names (lark open_id `ou_*`, `<name>-personal`, etc.)
+    - Long opaque tokens/IDs that look like real credentials
+    - Person names in config-like contexts (CJK names caught structurally below)
+    
+    Returns list of (line_number, identifier, category).
+    """
+    issues = []
+    lines = content.split('\n')
+    
+    # Patterns for personal identifiers
+    # 1. Profile names with personal prefixes
+    # Structural detection only — do NOT hardcode real profile/person names here:
+    # this script ships in a PUBLIC skill, so a real name in the pattern is itself a leak.
+    # Lark open_id (ou_ + long hash) and the `<name>-personal` profile suffix are generic
+    # shapes; real CJK names are caught by cjk_name_pattern below, real tokens by token_pattern.
+    profile_pattern = re.compile(r'\b(ou_[a-z0-9]{8,}|[a-z][a-z0-9]*-personal)\b', re.IGNORECASE)
+    
+    # 2. Long opaque tokens (16+ chars, not placeholders)
+    token_pattern = re.compile(r'\b[a-z0-9]{20,}\b', re.IGNORECASE)
+    
+    # 3. Chinese names (2-4 chars, common name patterns) in non-comment lines
+    cjk_name_pattern = re.compile(r'[一-鿿]{2,4}')
+    
+    for line_no, line in enumerate(lines, 1):
+        stripped = line.strip()
+        # Skip comments, placeholders, and obvious examples
+        if stripped.startswith('#') or stripped.startswith('```'):
+            continue
+        if '<' in stripped or 'example' in stripped.lower() or 'placeholder' in stripped.lower():
+            continue
+        
+        # Check for profile names
+        for match in profile_pattern.finditer(line):
+            text = match.group(0)
+            # Skip obvious non-personal patterns
+            if text.lower() in {'self', 'me', 'example-profile'}:
+                continue
+            issues.append((line_no, text, 'profile_name'))
+        
+        # Check for long tokens
+        for match in token_pattern.finditer(line):
+            text = match.group(0)
+            # Skip common non-token words
+            if text.lower() in {'skill_version', 'lookback_days', 'relevance_keywords'}:
+                continue
+            # A real credential virtually always mixes in digits; a long
+            # digit-free identifier is a camelCase config key / API name
+            # (maxCommentPagesPerVideo), which drowned real findings in noise.
+            if not any(c.isdigit() for c in text):
+                continue
+            issues.append((line_no, text, 'opaque_token'))
+        
+        # Check for CJK names (only in config-like contexts: after colon, in YAML values)
+        # Simple heuristic: lines that look like YAML key: value where value is CJK
+        if ':' in stripped and not stripped.startswith('#'):
+            key_part, _, val_part = stripped.partition(':')
+            val_part = val_part.strip()
+            # Only a SHORT all-CJK value looks like a person name in config.
+            # match() on a long sentence fired on ordinary Chinese prose
+            # (docstrings, table cells) and drowned real findings in noise.
+            if cjk_name_pattern.fullmatch(val_part):
+                # Could be a person name in config
+                issues.append((line_no, val_part, 'cjk_identifier'))
+
+    return issues
+
+
+def validate_internal_paths(skill_path: Path, content: str) -> tuple[bool, list[str]]:
+    """
+    Verify skill-internal path references actually exist.
+    Only checks relative paths within the skill bundle (scripts/, references/, assets/).
+    Absolute paths are NOT checked here (they're external).
+    """
+    referenced_paths = find_internal_path_references(content)
+    missing = []
+
+    for ref_path in referenced_paths:
+        full_path = skill_path / ref_path
+        if not full_path.exists():
+            missing.append(ref_path)
+
+    return len(missing) == 0, missing
+
+
+# Define allowed properties (union of official and our extensions)
+ALLOWED_PROPERTIES = {
+    'name', 'description', 'license', 'allowed-tools', 'metadata',
+    'compatibility', 'context', 'agent', 'disable-model-invocation',
+    'user-invocable', 'model', 'argument-hint', 'hooks',
+}
+
+
+def validate_skill(skill_path, audience=None):
+    """Basic validation of a skill"""
+    skill_path = Path(skill_path)
+
+    # Check SKILL.md exists
+    skill_md = skill_path / 'SKILL.md'
+    if not skill_md.exists():
+        return False, "SKILL.md not found"
+
+    # Read and validate frontmatter
+    content = skill_md.read_text(encoding="utf-8")
+    if not content.startswith('---'):
+        return False, "No YAML frontmatter found"
+
+    # Extract frontmatter
+    match = re.match(r'^---\n(.*?)\n---', content, re.DOTALL)
+    if not match:
+        return False, "Invalid frontmatter format"
+
+    frontmatter_text = match.group(1)
+
+    # Check for invalid indentation characters in frontmatter
+    invalid_indent = find_invalid_frontmatter_indentation(frontmatter_text)
+    if invalid_indent:
+        samples = ", ".join(
+            f"line {line_no} ({describe_whitespace(ch)})"
+            for line_no, ch in invalid_indent[:3]
+        )
+        more = "" if len(invalid_indent) <= 3 else f" (+{len(invalid_indent) - 3} more)"
+        return False, (
+            "Invalid whitespace in frontmatter indentation; use ASCII spaces only. "
+            f"Found: {samples}{more}"
+        )
+
+    # Parse YAML frontmatter
+    try:
+        frontmatter = yaml.safe_load(frontmatter_text)
+        if not isinstance(frontmatter, dict):
+            return False, "Frontmatter must be a YAML dictionary"
+    except yaml.YAMLError as e:
+        return False, f"Invalid YAML in frontmatter: {e}"
+
+    # Check for unexpected properties
+    unexpected_keys = set(frontmatter.keys()) - ALLOWED_PROPERTIES
+    if unexpected_keys:
+        return False, (
+            f"Unexpected key(s) in SKILL.md frontmatter: {', '.join(sorted(unexpected_keys))}. "
+            f"Allowed properties are: {', '.join(sorted(ALLOWED_PROPERTIES))}"
+        )
+
+    # Check required fields
+    if 'description' not in frontmatter:
+        return False, "Missing 'description' in frontmatter"
+
+    # Extract name for validation (optional per official spec, but validate if present)
+    name = frontmatter.get('name', '')
+    if isinstance(name, str):
+        name = name.strip()
+        if name:
+            # Check naming convention (kebab-case: lowercase with hyphens)
+            if not re.match(r'^[a-z0-9-]+$', name):
+                return False, f"Name '{name}' should be kebab-case (lowercase letters, digits, and hyphens only)"
+            if name.startswith('-') or name.endswith('-') or '--' in name:
+                return False, f"Name '{name}' cannot start/end with hyphen or contain consecutive hyphens"
+            # Check name length (max 64 characters per spec)
+            if len(name) > 64:
+                return False, f"Name is too long ({len(name)} characters). Maximum is 64 characters."
+    elif name is not None:
+        return False, f"Name must be a string, got {type(name).__name__}"
+
+    # Extract and validate description
+    description = frontmatter.get('description', '')
+    if not isinstance(description, str):
+        return False, f"Description must be a string, got {type(description).__name__}"
+    description = description.strip()
+    if description:
+        # Check for angle brackets
+        if '<' in description or '>' in description:
+            return False, "Description cannot contain angle brackets (< or >)"
+        # Check description length (max 1024 characters per spec)
+        if len(description) > 1024:
+            return False, f"Description is too long ({len(description)} characters). Maximum is 1024 characters."
+
+    # Validate skill-internal path references exist
+    # NOTE: Only checks relative paths within the skill bundle (scripts/, references/, assets/).
+    # Absolute paths (e.g., /Users/<user>/...) are external and NOT checked here.
+    paths_valid, missing_paths = validate_internal_paths(skill_path, content)
+    if not paths_valid:
+        return False, (
+            f"Missing internal skill files: {', '.join(missing_paths)}\n"
+            "  A bare `scripts/...` / `references/...` / `assets/...` reference always means\n"
+            "  'inside this skill's own bundle'. Two ways to resolve:\n"
+            "  1. The file belongs to the bundle → create it at that path inside the skill.\n"
+            "  2. The prose points at a file in the TARGET project (not the bundle) →\n"
+            "     qualify it with a placeholder prefix, e.g. `<project-root>/scripts/x.sh`\n"
+            "     (paths preceded by `/` are not treated as bundle-internal)."
+        )
+
+    # Scan SKILL.md AND bundled text files (references/, scripts/) for portability
+    # issues. Scanning only SKILL.md is a proven blind spot: a hardcoded
+    # /Users/<name>/ path shipped inside a reference file passed validation for
+    # a full review round because this loop used to look at SKILL.md alone.
+    scan_targets = [(skill_md.name, content)]
+    # workflows/, agents/, assets/ joined the sweep after the same blind spot
+    # recurred in directory form: 7 workflow docs (incl. the largest file in the
+    # bundle) were outside the scan.
+    for sub in ("references", "scripts", "workflows", "agents", "assets"):
+        sub_dir = skill_path / sub
+        if not sub_dir.is_dir():
+            continue
+        for f in sorted(sub_dir.rglob("*")):
+            if not f.is_file() or f.suffix not in {".md", ".py", ".sh", ".bash", ".txt"}:
+                continue
+            if "__pycache__" in f.parts:
+                continue
+            try:
+                scan_targets.append((str(f.relative_to(skill_path)), f.read_text(encoding="utf-8")))
+            except (OSError, UnicodeDecodeError):
+                continue
+
+    for rel_name, file_content in scan_targets:
+        # Warn about absolute user paths (personal data)
+        abs_paths = find_external_absolute_paths(file_content)
+        if abs_paths:
+            path_list = "; ".join(f"line {ln}: {p}" for ln, p in abs_paths[:5])
+            if audience == "private":
+                print(f"{chr(128274)} note: absolute user paths in {rel_name}:")
+                print(f"   {path_list}")
+                print(f"   This skill lives in a PRIVATE repo, so this is informational only.")
+                print(f"   A real path is often why the script runs as-is — do not placeholder it")
+                print(f"   without asking the owner. Only matters if this skill later goes public.")
+            else:
+                print(f"{chr(9992)}  WARNING: Found absolute user paths in {rel_name}:")
+                print(f"   {path_list}")
+                print(f"   These won't work on other machines. Use relative paths or config placeholders instead.")
+                print(f"   If this skill is private tooling and the real path is what makes it run,")
+                print(f"   that is a legitimate reason to keep it — ask the owner before rewriting.")
+
+        # Warn about personal identifiers (profiles, tokens, names).
+        # Markdown only: scripts legitimately contain long hex/token-shaped
+        # literals and CJK comments, which are noise, not identity leaks.
+        personal = find_personal_identifiers(file_content) if rel_name.endswith(".md") else []
+        if personal:
+            personal_list = "; ".join(f"line {ln}: {cat}={val!r}" for ln, val, cat in personal[:5])
+            if audience == "private":
+                print(f"{chr(128274)} note: personal/project-specific identifiers in {rel_name}:")
+                print(f"   {personal_list}")
+                print(f"   PRIVATE repo — informational. Review only if this skill later goes public.")
+            else:
+                print(f"{chr(9992)}  WARNING: Found personal/project-specific identifiers in {rel_name}:")
+                print(f"   {personal_list}")
+                print(f"   These are fine for private projects but should be reviewed before sharing.")
+
+        # Warn about broken skill-internal references inside reference docs
+        # (SKILL.md gets the hard-fail check above; references get a warning).
+        # Scoped to references/ only: workflows/ and agents/ docs teach the
+        # layout of *generated or other* skills, so bare paths there are
+        # examples, not bundle references — checking them misfires on healthy
+        # teaching prose ("scripts/install_<tool>.sh", "better scripts/tools").
+        if rel_name != skill_md.name and rel_name.endswith(".md") and rel_name.startswith("references/"):
+            _, missing = validate_internal_paths(skill_path, file_content)
+            if missing:
+                print(f"{chr(9992)}  WARNING: {rel_name} references missing skill files: {', '.join(missing[:5])}")
+
+    return True, "Skill is valid!"
+
+
+if __name__ == "__main__":
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    flags = [a for a in sys.argv[1:] if a.startswith("--")]
+    if len(args) != 1:
+        print("Usage: python quick_validate.py <skill_directory> [--audience public|private|auto]")
+        print("  --audience  who this skill ships to. Default 'auto' asks gh whether the")
+        print("              containing repo is private. Private skills get portability and")
+        print("              identifier findings as notes, not warnings — there, a real path")
+        print("              or credential is usually load-bearing, not a defect.")
+        sys.exit(1)
+
+    audience = "auto"
+    for f in flags:
+        if f.startswith("--audience"):
+            audience = f.split("=", 1)[1] if "=" in f else "auto"
+    if audience not in {"public", "private", "auto"}:
+        print(f"Unknown --audience {audience!r}; expected public, private, or auto")
+        sys.exit(1)
+
+    if audience == "auto":
+        audience, how = detect_audience(Path(args[0]))
+        if audience == "private":
+            print(f"{chr(128274)} audience: private ({how}) — portability/identifier findings are notes, not defects")
+    valid, message = validate_skill(args[0], audience=audience)
+    print(message)
+    sys.exit(0 if valid else 1)

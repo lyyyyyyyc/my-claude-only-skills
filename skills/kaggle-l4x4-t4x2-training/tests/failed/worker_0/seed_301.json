@@ -1,0 +1,6 @@
+{
+  "condition": "condition_a",
+  "seed": 301,
+  "status": "failed",
+  "failure_kind": "cuda_oom"
+}
